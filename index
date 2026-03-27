@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MMI Checker Extension</title>
+    <script src="https://app.connect.trimble.com/tc/api/2.0/api.js"></script>
+    <style>
+        body { font-family: sans-serif; padding: 15px; }
+        #results { margin-top: 20px; border-top: 1px solid #ccc; }
+        .model-item { padding: 5px 0; color: #d9534f; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h3>MMI 375 / Date Check</h3>
+    <button id="checkBtn">Check Models</button>
+    
+    <div id="results">
+        <p>Click "Check" to scan models...</p>
+    </div>
+
+    <script>
+        // Initialize the API
+        const tcSpace = TrimbleConnect.init();
+
+        document.getElementById('checkBtn').addEventListener('click', async () => {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = "Scanning... (This may take a moment)";
+            
+            try {
+                // 1. Calculate the date threshold (Today - 42 days)
+                const sixWeeksAgo = new Date();
+                sixWeeksAgo.setDate(sixWeeksAgo.getDate() - 42);
+
+                // 2. Get all models currently loaded in the viewer
+                const loadedModels = await tcSpace.viewer.getModels();
+                let flaggedModels = new Set();
+
+                for (const model of loadedModels) {
+                    // 3. Get all objects in this model
+                    const objects = await tcSpace.viewer.getObjectProperties(model.id);
+
+                    for (const obj of objects) {
+                        let mmiMatch = false;
+                        let dateOld = false;
+
+                        // 4. Iterate through properties to find MMI and Revisjonsdato
+                        // Note: Properties are often inside PropertySets
+                        obj.properties.forEach(pset => {
+                            pset.properties.forEach(prop => {
+                                // Check MMI
+                                if (prop.name === "MMI" && prop.value == "375") {
+                                    mmiMatch = true;
+                                }
+                                // Check Revisjonsdato
+                                if (prop.name === "Revisjonsdato") {
+                                    const revDate = new Date(prop.value);
+                                    if (!isNaN(revDate) && revDate < sixWeeksAgo) {
+                                        dateOld = true;
+                                    }
+                                }
+                            });
+                        });
+
+                        // 5. If both conditions are met, add model name to our set
+                        if (mmiMatch && dateOld) {
+                            flaggedModels.add(model.name);
+                            break; // We found at least one, so move to the next model
+                        }
+                    }
+                }
+
+                // 6. Display Results
+                displayResults(flaggedModels);
+
+            } catch (error) {
+                resultsDiv.innerHTML = "Error: " + error.message;
+                console.error(error);
+            }
+        });
+
+        function displayResults(models) {
+            const resultsDiv = document.getElementById('results');
+            if (models.size === 0) {
+                resultsDiv.innerHTML = "<p>✅ No models found matching criteria.</p>";
+            } else {
+                resultsDiv.innerHTML = "<p>⚠️ The following models have MMI 375 older than 6 weeks:</p>";
+                models.forEach(modelName => {
+                    const item = document.createElement('div');
+                    item.className = 'model-item';
+                    item.innerText = "• " + modelName;
+                    resultsDiv.appendChild(item);
+                });
+            }
+        }
+    </script>
+</body>
+</html>
