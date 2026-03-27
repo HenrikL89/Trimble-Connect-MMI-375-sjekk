@@ -1,22 +1,6 @@
 {
-  "manifestVersion": 1,
-  "id": "mmi-date-checker-extension",
-  "name": "MMI 375 Auditor",
-  "version": "1.0.0",
-  "description": "Checks for MMI 375 properties with revision dates older than 6 weeks.",
-  "publisher": "Your Company Name",
-  "icon": "https://static.vecteezy.com/system/resources/previews/020/327/866/non_2x/mmi-letter-logo-design-on-white-background-mmi-creative-circle-letter-logo-concept-mmi-letter-design-vector.jpg",
-  "entryPoints": [
-    {
-      "type": "viewer-side-panel",
-      "id": "mmi-checker-panel",
-      "name": "MMI Date Checker",
-      "url": "https://your-hosting-url.com/index.html",
-      "icon": "https://static.vecteezy.com/system/resources/previews/020/327/866/non_2x/mmi-letter-logo-design-on-white-background-mmi-creative-circle-letter-logo-concept-mmi-letter-design-vector.jpg"
-    }
-  ],
-  "permissions": [
-    "viewer.read",
-    "project.read"
-  ]
+  "title": "MMI Checker",
+  "url": "https://henrikl89.github.io/Trimble-Connect-Topics-Dashboard/index.html",
+  "description": "Live visualization and interactive charting of BCF Topics",
+  "icon": "https://static.vecteezy.com/system/resources/previews/020/327/866/non_2x/mmi-letter-logo-design-on-white-background-mmi-creative-circle-letter-logo-concept-mmi-letter-design-vector.jpg"
 }
